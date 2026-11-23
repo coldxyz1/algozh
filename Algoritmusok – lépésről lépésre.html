@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Algoritmusok – lépésről lépésre</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#1b2333;--mute:#5b667a;--line:#cfd6e2;--acc:#2457d6;--hl:#ffe27a;--ok:#1f8a4c;--bad:#c93c3c;--code:#f6f8fb;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141d;--card:#181e2a;--ink:#e8ecf4;--mute:#9aa5ba;--line:#2c3547;--acc:#7da2ff;--hl:#5c4d12;--ok:#4cc27f;--bad:#ff7b7b;--code:#111621}}
+:root[data-theme="dark"]{--bg:#10141d;--card:#181e2a;--ink:#e8ecf4;--mute:#9aa5ba;--line:#2c3547;--acc:#7da2ff;--hl:#5c4d12;--ok:#4cc27f;--bad:#ff7b7b;--code:#111621}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px 14px 60px}
+h1{font-size:1.6rem;margin:.4em 0 .1em;letter-spacing:-.01em}
+h2{font-size:1.2rem;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+.sub{color:var(--mute);margin:0 0 14px}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0;z-index:5}
+nav button{flex:1 1 auto;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px 10px;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}
+nav button[aria-selected=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0}
+.card h3{margin:0 0 6px;font-size:1.05rem}
+.tag{display:inline-block;font:600 .8rem "JetBrains Mono",ui-monospace,monospace;background:var(--code);border:1px solid var(--line);padding:1px 7px;border-radius:5px}
+pre.code{margin:10px 0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:6px 0;overflow-x:auto;font:.92rem/1.7 "JetBrains Mono",ui-monospace,monospace}
+pre.code div{padding:0 12px;white-space:pre}
+pre.code div.on{background:var(--hl);font-weight:600}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:8px 0}
+label{display:flex;flex-direction:column;font-size:.85rem;color:var(--mute);gap:3px}
+input,select{font:1rem "JetBrains Mono",ui-monospace,monospace;padding:7px 9px;border:1.5px solid var(--line);border-radius:7px;background:var(--card);color:var(--ink);max-width:100%}
+input[type=number]{width:80px}
+.btn{border:0;background:var(--acc);color:#fff;font:700 1rem inherit;padding:9px 14px;border-radius:8px;cursor:pointer}
+.btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.vars{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{font:.92rem "JetBrains Mono",ui-monospace,monospace;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:3px 9px}
+.chip b{color:var(--acc)}
+.arr{display:flex;gap:4px;overflow-x:auto;padding:4px 0;margin:6px 0}
+.cell{min-width:38px;text-align:center;border:1.5px solid var(--line);border-radius:6px;padding:4px 0 2px;font:600 1rem "JetBrains Mono",ui-monospace,monospace;background:var(--card)}
+.cell small{display:block;font-weight:400;font-size:.7rem;color:var(--mute)}
+.cell.h{background:var(--hl);border-color:var(--acc)}
+.note{border-left:4px solid var(--acc);padding:4px 10px;margin:8px 0;min-height:2.4em}
+.res{font:700 1.05rem "JetBrains Mono",ui-monospace,monospace}
+.fb{font-weight:700;margin-left:6px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.q{padding:10px 0;border-top:1px solid var(--line)}.q:first-of-type{border-top:0}
+.q .row{margin:4px 0}
+.ex{color:var(--mute);margin:4px 0 0;font-size:.95rem}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+td,th{border:1px solid var(--line);padding:5px 8px;text-align:left}
+@media (prefers-reduced-motion:no-preference){.cell,pre.code div{transition:background .15s}}
+</style>
+<style id='v2'>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap');
+:root{--bg:#e9eff5;--card:#fff;--ink:#13202c;--mute:#586879;--line:#d3dde8;--acc:#0b7f89;--acc2:#14a58f;--acc-soft:rgba(11,127,137,.14);--ok:#12805c;--bad:#c2413d;--code:#f0f4f8;--term:#0f1822;--on:#fff;--sh:0 1px 2px rgba(19,32,44,.06),0 12px 28px -14px rgba(19,32,44,.28);--r:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme='light']){--bg:#0a1017;--card:#121b26;--ink:#e6edf5;--mute:#93a3b6;--line:#243142;--acc:#43d1c5;--acc2:#7be0a8;--acc-soft:rgba(67,209,197,.14);--ok:#4cc27f;--bad:#ff8a84;--code:#0e1721;--term:#080d13;--on:#04201d;--sh:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.7)}}
+:root[data-theme='dark']{--bg:#0a1017;--card:#121b26;--ink:#e6edf5;--mute:#93a3b6;--line:#243142;--acc:#43d1c5;--acc2:#7be0a8;--acc-soft:rgba(67,209,197,.14);--ok:#4cc27f;--bad:#ff8a84;--code:#0e1721;--term:#080d13;--on:#04201d;--sh:0 1px 2px rgba(0,0,0,.4),0 12px 28px -14px rgba(0,0,0,.7)}
+body{background:radial-gradient(800px 420px at 88% -8%,var(--acc-soft),transparent 62%),radial-gradient(620px 380px at -8% 12%,rgba(255,196,46,.12),transparent 60%),var(--bg);background-attachment:fixed;font-size:17px;-webkit-font-smoothing:antialiased}
+body:before{content:'';position:fixed;width:44vmax;height:44vmax;right:-16vmax;top:-22vmax;border-radius:50%;background:radial-gradient(circle,var(--acc-soft),transparent 66%);animation:drift 16s ease-in-out infinite alternate;pointer-events:none}
+main{position:relative;z-index:1}
+h1{font-family:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;font-weight:800;font-size:clamp(1.9rem,7vw,2.7rem);line-height:1.08;letter-spacing:-.03em;margin:.5em 0 .2em;background:linear-gradient(100deg,var(--ink) 30%,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent;animation:rise .6s cubic-bezier(.2,.7,.2,1) both}
+h1:before{content:'ZH2 \00b7 GKNB_MSTM065';display:block;font:700 .72rem 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.16em;color:var(--acc);-webkit-text-fill-color:var(--acc);margin-bottom:8px}
+.sub{animation:rise .6s .08s cubic-bezier(.2,.7,.2,1) both}
+nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;padding:6px;border:1px solid var(--line);border-radius:18px;background:color-mix(in srgb,var(--card) 78%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:var(--sh);top:calc(env(safe-area-inset-top,0px) + 6px)}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;border:0;background:transparent;color:var(--mute);border-radius:12px;padding:9px 14px;font-size:.95rem;transition:background .25s,color .25s,transform .2s,box-shadow .25s}
+nav button:hover{color:var(--ink);background:var(--acc-soft)}
+nav button:active{transform:scale(.96)}
+nav button[aria-selected=true]{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--on);box-shadow:0 6px 16px -6px var(--acc)}
+#view>*{animation:rise .55s cubic-bezier(.2,.7,.2,1) both}
+#view>:nth-child(2){animation-delay:.07s}#view>:nth-child(3){animation-delay:.14s}#view>:nth-child(4){animation-delay:.21s}#view>:nth-child(5){animation-delay:.28s}#view>:nth-child(n+6){animation-delay:.34s}
+.card{border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);padding:18px 20px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+.card h3{display:flex;align-items:center;gap:10px;font-family:'Bricolage Grotesque','Atkinson Hyperlegible',system-ui,sans-serif;font-size:1.15rem;letter-spacing:-.01em;margin-bottom:8px}
+.card h3:before{content:'';flex:0 0 5px;height:1.2em;border-radius:3px;background:linear-gradient(var(--acc),var(--acc2))}
+.tag{background:var(--acc-soft);border-color:transparent;color:var(--acc);border-radius:7px}
+table{border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+td,th{border:0;border-bottom:1px solid var(--line)}tr:last-child td{border-bottom:0}th{background:var(--code);font-size:.85rem;color:var(--mute)}
+label{font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-size:.7rem}
+input,select{border-radius:11px;border:1.5px solid var(--line);padding:9px 12px;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 4px var(--acc-soft)}
+.btn{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--on);border-radius:12px;padding:10px 18px;box-shadow:0 8px 18px -10px var(--acc);transition:transform .15s,box-shadow .2s,filter .2s}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 22px -10px var(--acc);filter:saturate(1.1)}
+.btn:active:not(:disabled){transform:scale(.96)}
+.btn.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
+.btn.alt:hover:not(:disabled){border-color:var(--acc);box-shadow:0 6px 14px -8px var(--acc)}
+.btn:disabled{opacity:.35}
+pre.code{counter-reset:ln;background:var(--term);color:#d6e2ee;border:0;border-radius:14px;padding:6px 0 10px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),var(--sh)}
+pre.code:before{content:'\25CF  \25CF  \25CF';display:block;padding:4px 14px 8px;font-size:.6rem;letter-spacing:2px;color:#3b4d60}
+pre.code div{counter-increment:ln;position:relative;padding:2px 16px 2px 46px;border-left:3px solid transparent;transition:background .3s,border-color .3s,color .3s}
+pre.code div:before{content:counter(ln);position:absolute;left:14px;color:#4f6377;font-size:.78em}
+pre.code div.on{background:linear-gradient(90deg,rgba(255,196,46,.26),rgba(255,196,46,.03));border-left-color:#ffc42e;color:#fff}
+pre.code div.on:before{color:#ffc42e}
+.cell{min-width:46px;border-radius:11px;padding:7px 0 3px;font-size:1.1rem;box-shadow:var(--sh);transition:transform .25s,background .25s}
+.cell.h{background:linear-gradient(180deg,#ffe38f,#ffc42e);border-color:#e0a800;color:#3a2a00;transform:translateY(-5px);animation:pop .4s cubic-bezier(.3,1.7,.5,1)}
+.cell.h small{color:#6b5200}
+.chip{border-radius:999px;padding:5px 13px;border-color:transparent;background:var(--code);animation:chipin .3s both}
+.chip b{color:var(--acc)}
+.note{background:var(--acc-soft);border-left:0;border-radius:12px;padding:12px 16px;box-shadow:inset 4px 0 0 var(--acc);animation:noteIn .35s ease both}
+#pos{min-width:76px;text-align:center;background:linear-gradient(90deg,var(--acc-soft) var(--p,0%),var(--code) var(--p,0%));transition:background .3s}
+.fb{display:inline-block;border-radius:10px;padding:5px 11px;margin-left:0}
+.fb:empty{display:none}
+.fb.ok{background:rgba(18,128,92,.14);animation:pop .45s cubic-bezier(.3,1.6,.5,1)}
+.fb.bad{background:rgba(194,65,61,.14);animation:shake .4s}
+#fin:not(:empty){margin-top:12px;padding:12px 16px;border-radius:12px;border:1.5px dashed var(--acc);background:linear-gradient(135deg,var(--acc-soft),transparent);animation:rise .45s both}
+.q{transition:background .2s}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.6)}100%{transform:scale(1)}}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@keyframes noteIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:none}}
+@keyframes chipin{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+@keyframes drift{to{transform:translate(-6vmax,8vmax) scale(1.15)}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+<style id='v3'>
+html{scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{overscroll-behavior-y:none}
+main{max-width:760px;padding:18px 16px calc(96px + env(safe-area-inset-bottom,0px))}
+h1{padding-right:58px}
+.tt{position:absolute;right:16px;top:18px;width:46px;height:46px;border-radius:15px;border:1px solid var(--line);background:var(--card);font-size:1.15rem;cursor:pointer;box-shadow:var(--sh);transition:transform .25s}
+.tt:active{transform:scale(.9) rotate(25deg)}
+nav{margin:14px 0 16px;padding-right:30px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 34px),transparent)}
+nav button{min-height:44px;white-space:nowrap}
+#ins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end}
+#ins label{min-width:0}
+#ins input,#ins select,#guess{width:100%;min-width:0;font-size:16px}
+#ins #go{grid-column:1/-1;min-height:48px}
+.row:has(#guess){display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+.row:has(#guess) label{min-width:0}
+.row:has(#guess) .fb{grid-column:1/-1}
+.row:has(#guess) .btn{min-height:46px}
+.row:has(#next){position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:6;display:flex;flex-wrap:nowrap;gap:8px;align-items:center;margin:16px -4px 0;padding:8px;border-radius:20px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 82%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 14px 34px -12px rgba(0,0,0,.4)}
+.row:has(#next) .btn{min-height:48px;padding:10px 14px}
+#next{flex:1 1 auto;font-size:1.02rem}
+#pos{flex:0 0 auto;font-size:.8rem;padding:6px 10px}
+.q .row .btn{min-height:44px;min-width:92px}
+.arr{padding:10px 2px 12px;scrollbar-width:thin}
+.cell{flex:0 0 auto}
+.vars{gap:6px}
+@media (max-width:560px){
+body{font-size:16.5px}
+main{padding:14px 12px calc(100px + env(safe-area-inset-bottom,0px))}
+h1{font-size:1.9rem}
+.sub{font-size:.95rem}
+.card{padding:14px;border-radius:14px}
+pre.code{font-size:.8rem;margin-left:-4px;margin-right:-4px;border-radius:12px}
+pre.code div{padding-left:38px}
+pre.code div:before{left:10px}
+.cell{min-width:40px;font-size:1rem}
+table{font-size:.82rem}td,th{padding:6px 7px}
+.note{font-size:.97rem}
+#all{display:none}
+}
+@media (hover:none){.card:hover{transform:none;border-color:var(--line)}.btn:hover:not(:disabled){transform:none;filter:none}}
+@media (min-width:900px){
+main{max-width:1020px}
+h1{font-size:3rem}
+.card:has(#code){display:grid;grid-template-columns:1.1fr 1fr;column-gap:22px;align-items:start}
+.card:has(#code)>h3{grid-column:1/-1}
+.card:has(#code)>pre{grid-column:1;grid-row:2/7}
+.card:has(#code)>:not(h3):not(pre){grid-column:2}
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Algoritmusok és adatstruktúrák</h1>
+<p class="sub">ZH2 gyakorló: értsd meg a témákat, ne csak a választ. Minden gyakorlónál előbb tippelj, aztán lépkedj végig.</p>
+<nav role="tablist" id="tabs"></nav>
+<section id="view"></section>
+</main>
+
+<script>
+var $=function(s){return document.querySelector(s)};
+var esc=function(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")};
+var TABS=[["th","Elmélet"],["sum","Összegzés"],["max","Szöveg: min/max"],["idx","Legkisebb indexe"],["cp","Szövegépítés"],["bub","Buborékrendezés"],["sel","Kiválasztásos"],["ins","Beszúró"],["flt","Szűrés (IN)"]];
+var cur="th";
+
+function renderTabs(){
+  $("#tabs").innerHTML=TABS.map(function(t){return '<button role="tab" aria-selected="'+(t[0]===cur)+'" data-t="'+t[0]+'">'+t[1]+'</button>'}).join("");
+  document.querySelectorAll("#tabs button").forEach(function(b){b.onclick=function(){cur=b.dataset.t;renderTabs();show()}});
+}
+
+/* ---------- ELMÉLET ---------- */
+var QUIZ=[
+ ["A sor (queue) elemei abban a sorrendben jönnek ki, ahogy betették őket (FIFO).",true,"Sor = FIFO: aki először érkezett, azt szolgálják ki először."],
+ ["A bináris keresőfában minden csúcs bal oldali részfájában kisebb, a jobb oldaliban nagyobb kulcsok vannak.",true,"Ez a keresőfa rendezési tulajdonsága. Ettől lehet gyorsan keresni benne."],
+ ["Max-kupacban a gyökérelem a legkisebb kulcsot tartalmazza.",false,"Max-kupacban a szülő mindig ≥ a gyerekeinél, ezért a gyökér a legnagyobb."],
+ ["Cím szerinti paraméterátadásnál az aktuális paraméter lehet például az A+1 kifejezés.",false,"A kifejezésnek nincs memóriacíme, amit át lehetne adni. Cím szerinti átadásnál változó kell."],
+ ["Rekurzív szubrutinnak kell tartalmaznia olyan ágat, amelyben már nem hívja meg önmagát.",true,"Ez az alapeset. Nélküle a hívások sosem állnának meg."],
+ ["Az 1-től indexelt tömbben tárolt bináris fa i. csúcsának bal gyereke a 2i. elem.",true,"A jobb gyerek a 2i+1. elem, a szülő a ⌊i/2⌋. elem."],
+ ["A gyorsrendezés legrosszabb esetben is n·log n lépésű.",false,"Rossz szétválasztásnál (például a legkisebb elem a pivot egy rendezett tömbben) n² nagyságrendű."],
+ ["Egy fában bármely két csúcs között pontosan egy út van.",true,"A fa összefüggő (van út) és körmentes (nincs két különböző út)."],
+ ["Egy hívásnál az aktuális és a formális paraméterlista elemszáma azonos.",true,"A paraméterek sorrend szerint párosulnak, ezért a darabszámnak és a típusnak egyeznie kell."],
+ ["Min-kupacban a gyökérelem a legkisebb kulcsot tartalmazza.",true,"A szülő mindig kisebb vagy egyenlő a gyerekeinél, így a legkisebb elem van felül."]
+];
+function theory(){
+  $("#view").innerHTML=
+  '<div class="card"><h3>1. Verem és sor</h3><p><b>Verem (stack)</b>: egyetlen végén lehet betenni és kivenni. <b>LIFO</b>: <i>Last In, First Out</i>, vagyis az utoljára betett elem jön ki elsőként. Gondolj egy tányérrakásra.</p><p><b>Sor (queue)</b>: az egyik végén teszel be, a másikon veszel ki. <b>FIFO</b>: az elsőként betett jön ki elsőként.</p><p class="ex">Tipp: ha egy állításban „utolsóként betett” és „utoljára kivehető” szerepel, kérdezd meg magadtól: ez melyik szerkezet viselkedése?</p></div>'+
+  '<div class="card"><h3>2. Kupac és keresőfa</h3><p>Mindkettő bináris fa, de más a szabályuk:</p><table><tr><th></th><th>Kupac</th><th>Bináris keresőfa</th></tr><tr><td>Szabály</td><td>szülő ≥ (vagy ≤) a gyerekeinél</td><td>bal &lt; gyökér &lt; jobb</td></tr><tr><td>Testvérek között</td><td>nincs sorrend</td><td>van sorrend</td></tr><tr><td>Alak</td><td>majdnem teljes fa, tömbben tárolják</td><td>tetszőleges alak</td></tr><tr><td>Fő használat</td><td>prioritási sor, kupacrendezés</td><td>keresés</td></tr></table><p class="ex">Következtetés: az egyik nem a másik speciális esete, mert a rendezési szabályuk eltér.</p></div>'+
+  '<div class="card"><h3>3. Paraméterátadás</h3><p><b>Érték szerint</b>: a szubrutin másolatot kap, az eredeti nem változik. Itt az aktuális paraméter <b>kifejezés is lehet</b> (pl. <span class="tag">N+1</span>).</p><p><b>Cím szerint</b>: a szubrutin a változó címét kapja, így az eredeti változót módosítja. Ezért az aktuális paraméternek <b>változónak</b> kell lennie.</p><p>Az adatszerkezeti táblázat <b>Jelleg</b> oszlopa: <span class="tag">I</span> bemenő adat, <span class="tag">O</span> kimenő adat (eredmény), <span class="tag">M</span> módosuló érték (a szubrutin ír bele).</p></div>'+
+  '<div class="card"><h3>4. Rekurzió</h3><p>Egy szubrutin <b>rekurzív</b>, ha (közvetlenül vagy közvetve) önmagát hívja. Két része van: az <b>alapeset</b> (itt már nem hívja magát, ez állítja meg) és a <b>rekurzív lépés</b> (kisebb feladatra hívja önmagát).</p><p>Példa: <span class="tag">F(N)</span> = ha N ≤ 1, akkor 1, különben N · F(N-1). Nézd meg: van ebben ciklus? A rekurzió és az iteráció két különböző módszer az ismétlésre, és gyakran egymás helyettesítői.</p></div>'+
+  '<div class="card"><h3>5. Fák tárolása</h3><p>Dinamikus megoldás: a csúcsok külön elemek, mutatókkal összekötve (bal és jobb gyerek). De a fa <b>tömbben</b> is tárolható. Bináris fánál, ha a gyökér az 1. elem, az i. elem gyerekei a <span class="tag">2i</span> és <span class="tag">2i+1</span> indexen vannak, a szülője a <span class="tag">⌊i/2⌋</span>. A kupacot is így szokták tárolni. Általános fánál is lehet tömböt használni, ha minden csúcshoz a szülő (vagy a gyerekek) indexét tárolod.</p></div>'+
+  '<div class="card"><h3>6. Jelleg és átadás módja</h3><p>A <b>jelleg</b> azt mondja meg, mit csinál a szubrutin a paraméterrel: <span class="tag">I</span> csak olvassa, <span class="tag">O</span> eredményt ad vissza, <span class="tag">M</span> módosul az értéke. Az érték szerint átadott paraméter <b>másolat</b>, a másolat módosítása nem látszik a hívónál. A cím szerinti paraméter ugyanazt a változót éri el. Gondold végig: melyik jelleg igényel visszajutó értéket, és melyik átadás tudja ezt?</p></div>'+
+  '<div class="card"><h3>Formális és aktuális paraméter</h3><p>A <b>formális</b> paraméterek a szubrutin fejlécében és adatszerkezeti táblázatában szerepelnek (pl. <span class="tag">VALAMI(A, DB, ER)</span>). Az <b>aktuális</b> paraméterek a híváskor megadott változók vagy kifejezések. A párosítás <b>sorrend szerint</b> történik, ezért a számuknak és a típusuknak egyeznie kell. Érték szerinti átadásnál az aktuális paraméter lehet konstans, változó vagy kifejezés is, cím szerintinél változónak kell lennie.</p><p>Kupacnál: max-kupacban a gyökér a legnagyobb, min-kupacban a legkisebb elem.</p></div>'+
+  '<div class="card"><h3>7. Fa és rendezések</h3><p>A <b>fa</b> összefüggő, körmentes gráf. A bináris fa minden csúcsának legfeljebb két gyereke van.</p><table><tr><th>Módszer</th><th>Ötlet</th><th>Lépésszám</th></tr><tr><td>Buborék</td><td>szomszédos cserék</td><td>n²</td></tr><tr><td>Kiválasztásos</td><td>minden körben a legnagyobb (vagy legkisebb) a helyére kerül</td><td>n²</td></tr><tr><td>Beszúró</td><td>az I. elemet beszúrjuk a rendezett elejébe</td><td>n² (majdnem rendezettre gyors)</td></tr><tr><td>Gyorsrendezés</td><td>szétválogatás, majd rekurzív rendezés</td><td>átlag n·log n, legrosszabb n²</td></tr></table><p class="ex">A gyorsrendezés gyorsasága a kiegyensúlyozott szétválogatásból jön. A rekurzió önmagában még nem ad hatékonyságot: gondold végig, mi történik rossz szétválasztásnál.</p></div>'+
+  '<div class="card"><h3>Önellenőrző</h3><div id="quiz"></div></div>'+
+  '<div class="card"><h3>Így kövess végig egy algoritmust</h3><p>1) Írd fel a változókat egy táblázatba. 2) Menj sorról sorra, és minden értékadás után írd át a változót. 3) Ciklusnál minden körhöz írj új sort. 4) Ne gondolj a „céljára” az algoritmusnak, csak hajtsd végre mechanikusan. A következő fülek ezt gyakoroltatják.</p></div>';
+  $("#quiz").innerHTML=QUIZ.map(function(q,i){return '<div class="q"><div>'+esc(q[0])+'</div><div class="row"><button class="btn alt" data-i="'+i+'" data-a="1">Igaz</button><button class="btn alt" data-i="'+i+'" data-a="0">Hamis</button><span class="fb" id="fb'+i+'"></span></div></div>'}).join("");
+  document.querySelectorAll("#quiz button").forEach(function(b){b.onclick=function(){
+    var i=+b.dataset.i,ans=b.dataset.a==="1",ok=ans===QUIZ[i][1],f=$("#fb"+i);
+    f.className="fb "+(ok?"ok":"bad");f.textContent=(ok?"Helyes. ":"Nem. ")+QUIZ[i][2];}});
+}
+
+/* ---------- PROGRAMOK ---------- */
+function P_sum(o){
+  var db=Math.max(1,Math.min(5,o.db|0)),er=0,a=[],st=[];
+  for(var i=1;i<=db;i++)a.push(i);
+  st.push({l:0,v:{ER:0},n:"A TESZT először feltölti a tömböt: A[I] ← I, tehát A = ("+a.join(", ")+"). Ezután hívja: VALAMI(A, "+db+", ER).",arr:a});
+  st.push({l:1,v:{ER:0},n:"ER kezdőértéke 0.",arr:a});
+  for(i=1;i<=db;i++){var p=er;er+=i;st.push({l:3,v:{I:i,"A[I]":i,ER:er},n:"ER ← "+p+" + "+i+" = "+er,arr:a,hl:[i-1]})}
+  return{code:["VALAMI(A, DB, ER)","ER ← 0","for I ← 1, DB","  ER ← ER + A[I]"],steps:st,res:String(er)};
+}
+function P_max(o){
+  var s=o.s,st=[];
+  if(!s)return{code:[],steps:[],res:"#"};
+  var er=s[0];
+  st.push({l:0,v:{ER:'"'+er+'"'},n:'ER ← ST[1] = "'+er+'"'});
+  for(var i=2;i<=s.length;i++){
+    var c=s[i-1],big=c>er;
+    st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"',ER:'"'+er+'"'},n:'Összehasonlítás kódpont szerint: "'+c+'" ('+c.charCodeAt(0)+') > "'+er+'" ('+er.charCodeAt(0)+')? '+(big?"Igen":"Nem")+'.'});
+    if(big){er=c;st.push({l:3,v:{I:i,ER:'"'+er+'"'},n:'ER ← "'+c+'"'})}
+  }
+  st.push({l:4,v:{ER:'"'+er+'"'},n:'A VALAMI visszaadja: "'+er+'".'});
+  var res=er+s;
+  st.push({l:-1,v:{ER:'"'+res+'"'},n:'TESZT: ER ← VALAMI(ER) + ER. A VALAMI az eredeti szóra fut le, utána a visszaadott karakter a szó ELÉ kerül: "'+er+'" + "'+s+'".'});
+  return{code:["VALAMI(ST)","ER ← ST[1]","for I ← 2, LENGTH(ST)","  if ST[I] > ER","    ER ← ST[I]","return ER"].map(function(x,i){return i==0?x:x}).slice(0,0).concat(["ER ← ST[1]","for I ← 2, LENGTH(ST)","  if ST[I] > ER","    ER ← ST[I]","return ER"]),steps:remap(st),res:res};
+}
+function remap(st){return st.map(function(x){if(x.l===0)x.l=0;else if(x.l===2)x.l=2;else if(x.l===3)x.l=3;return x})}
+function P_cp(o){
+  var s=o.s,p1=o.p1|0,p2=o.p2|0,st=[],code=["ER ← ST[POZ1]","for I ← POZ1 + 1, POZ2",(o.m==="post"?'  ER ← ER + COPY("+-/*#()[]{}", 2, 1) + ST[I]':'  ER ← ST[I] + COPY("+-/*#()[]{}", 2, 1) + ER'),"return ER"];
+  if(p1<1||p1>s.length||p2>s.length){return{code:code,steps:[{l:0,v:{},n:"Az index kívül esik a sztringen (1 és "+s.length+" között kell lennie), ez hiba, ezért # az eredmény."}],res:"#"}}
+  var er=s[p1-1];
+  st.push({l:0,v:{ER:'"'+er+'"'},n:'ER ← ST['+p1+'] = "'+er+'"'});
+  for(var i=p1+1;i<=p2;i++){
+    var c=s[i-1],post=o.m==="post",n=post?er+"-"+c:c+"-"+er;
+    st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"',ER:'"'+n+'"'},n:'COPY("+-/*#()[]{}", 2, 1) a 2. karaktertől 1 darabot másol: "-". Tehát ER ← "'+(post?er:c)+'" + "-" + "'+(post?c:er)+'" = "'+n+'"'});
+    er=n;
+  }
+  st.push({l:3,v:{ER:'"'+er+'"'},n:"Visszaadott érték."});
+  return{code:code,steps:st,res:er};
+}
+function P_idx(o){
+  var s=o.s,st=[],a=s.split(""),er=1;
+  if(!s)return{code:[],steps:[],res:"#"};
+  var code=["ER ← 1","for I ← 2, LENGTH(ST)","  if ST[I] < ST[ER]","    ER ← I","return ER"];
+  st.push({l:0,v:{ER:1,"ST[ER]":'"'+a[0]+'"'},n:"ER ← 1. Az ER most az első elem helyét jelöli: ez egy index, nem karakter.",arr:a,hl:[0]});
+  for(var i=2;i<=a.length;i++){
+    var c=a[i-1],m=a[er-1],less=c<m;
+    st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"',ER:er,"ST[ER]":'"'+m+'"'},n:'"'+c+'" ('+c.charCodeAt(0)+') < "'+m+'" ('+m.charCodeAt(0)+')? '+(less?"Igen":"Nem")+'.',arr:a,hl:[i-1,er-1]});
+    if(less){er=i;st.push({l:3,v:{I:i,ER:er},n:"ER ← "+i+" (az új legkisebb elem helye).",arr:a,hl:[i-1]})}
+  }
+  st.push({l:4,v:{ER:er},n:"A VALAMI az ER értékét, vagyis a pozíciót adja vissza: "+er+".",arr:a,hl:[er-1]});
+  return{code:code,steps:st,res:String(er)};
+}
+function P_sum2(o){var k=o.k|0,db=o.db|0,st=[],a=[],er=0,code=["VALAMI(A, DB, ER)","ER ← 0","for I ← 1, DB"+(o.step>1?", "+o.step:""),"  ER ← ER + A[I]"];if(k>5)return{code:code,steps:[{l:0,v:{},n:"A feltöltés A[6]-nál kilógna a tömbből (NMAX = 5): hiba, #."}],res:"#"};for(var i=1;i<=k;i++)a.push(i);st.push({l:0,v:{ER:"?"},n:"A feltöltés után A = ("+a.join(", ")+"), a többi elem nincs beállítva. Hívás: VALAMI(A, "+db+", ER).",arr:a});st.push({l:1,v:{ER:0},n:"ER kezdőértéke 0.",arr:a});for(i=1;i<=db;i+=Math.max(1,o.step|0)){if(i>k){st.push({l:3,v:{I:i},n:"A["+i+"] nincs beállítva (vagy kilóg a tömbből). Ez tipikusan hibának számít (#), de a jegyzetedben ellenőrizd.",arr:a});return{code:code,steps:st,res:"#"}}var p=er;er+=i;st.push({l:3,v:{I:i,"A[I]":i,ER:er},n:"ER ← "+p+" + "+i+" = "+er,arr:a,hl:[i-1]})}return{code:code,steps:st,res:String(er)}}
+function idxRun(s,gt,st,pre){var a=s.split(""),er=1,op=gt?">":"<";st.push({l:0,v:{ER:1,"ST[ER]":'"'+a[0]+'"'},n:pre+"ER ← 1 (index, nem karakter).",arr:a,hl:[0]});for(var i=2;i<=a.length;i++){var c=a[i-1],m=a[er-1],t=gt?c>m:c<m;st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"',ER:er,"ST[ER]":'"'+m+'"'},n:pre+'"'+c+'" ('+c.charCodeAt(0)+') '+op+' "'+m+'" ('+m.charCodeAt(0)+')? '+(t?"Igen":"Nem")+".",arr:a,hl:[i-1,er-1]});if(t){er=i;st.push({l:3,v:{I:i,ER:er},n:pre+"ER ← "+i+".",arr:a,hl:[i-1]})}}st.push({l:4,v:{ER:er},n:pre+"Visszaadott érték: "+er+".",arr:a,hl:[er-1]});return er}
+function P_idx2(o){var gt=o.d===">",st=[],code=["ER ← 1","for I ← 2, LENGTH(ST)","  if ST[I] "+(gt?">":"<")+" ST[ER]","    ER ← I","return ER"];if(!o.s)return{code:[],steps:[],res:"#"};var r1=idxRun(o.s,gt,st,o.s2?"1. hívás: ":""),res=r1;if(o.s2){var r2=idxRun(o.s2,gt,st,"2. hívás: ");res=r1+r2;st.push({l:-1,v:{"1. hívás":r1,"2. hívás":r2},n:"Az egész számokat összeadjuk: "+r1+" + "+r2+" = "+res+"."})}return{code:code,steps:st,res:String(res)}}
+function P_cp2(o){var s=o.s,p1=o.p1|0,p2=o.p2|0,off=o.off|0,step=Math.max(1,o.step|0),cs=o.cs|0,post=o.m==="post",C="+-/*#()[]{}",cl='COPY("'+C+'", '+cs+', 1)',code=["ER ← ST[POZ1]","for I ← POZ1 + "+off+", POZ2"+(step>1?", "+step:""),post?"  ER ← ER + "+cl+" + ST[I]":"  ER ← ST[I] + "+cl+" + ER","return ER"],st=[],cp=(cs>=1&&cs<=C.length)?C[cs-1]:null;if(p1<1||p1>s.length)return{code:code,steps:[{l:0,v:{},n:"ST[POZ1]: az index kívül esik a sztringen (1 és "+s.length+" között kell lennie): hiba, #."}],res:"#"};var er=s[p1-1];st.push({l:0,v:{ER:'"'+er+'"'},n:'ER ← ST['+p1+'] = "'+er+'"'});for(var i=p1+off;i<=p2;i+=step){if(i<1||i>s.length||cp===null){st.push({l:2,v:{I:i},n:cp===null?"A COPY kezdete kívül esik a sztringen: hiba, #.":"ST["+i+"] kívül esik a sztringen: hiba, #."});return{code:code,steps:st,res:"#"}}var c=s[i-1],n=post?er+cp+c:c+cp+er;st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"',ER:'"'+n+'"'},n:cl+' = "'+cp+'". Tehát ER ← "'+(post?er:c)+'" + "'+cp+'" + "'+(post?c:er)+'" = "'+n+'"'});er=n}st.push({l:3,v:{ER:'"'+er+'"'},n:"Visszaadott érték."});return{code:code,steps:st,res:er}}
+function P_sel(o){var a=o.a.slice(),n=a.length,gt=o.d!=="<",op=gt?">":"<",st=[],code=["for I ← 1, N-1","  K ← I","  for J ← I+1, N","    if ADATOK[J] "+op+" ADATOK[K]","      K ← J","  if K > I","    CS ← ADATOK[I]","    ADATOK[I] ← ADATOK[K]","    ADATOK[K] ← CS"];st.push({l:0,v:{N:n},n:"Kiinduló tömb.",arr:a.slice()});for(var i=1;i<n;i++){var k=i;st.push({l:1,v:{I:i,K:k},n:"K ← I = "+i,arr:a.slice(),hl:[i-1]});for(var j=i+1;j<=n;j++){var t=gt?a[j-1]>a[k-1]:a[j-1]<a[k-1];st.push({l:3,v:{I:i,J:j,K:k},n:"ADATOK["+j+"] = "+a[j-1]+" "+op+" ADATOK["+k+"] = "+a[k-1]+"? "+(t?"Igen, K ← "+j:"Nem")+".",arr:a.slice(),hl:[j-1,k-1]});if(t)k=j}var sw=k>i;if(sw){var c=a[i-1];a[i-1]=a[k-1];a[k-1]=c}st.push({l:sw?8:5,v:{I:i,K:k},n:sw?"K > I, ezért ADATOK["+i+"] és ADATOK["+k+"] cserélődik.":"K = I, nincs csere.",arr:a.slice(),hl:[i-1,k-1],end:i})}return{code:code,steps:st,res:a.join(", "),sort:true}}
+function P_ins(o){var a=o.a.slice(),n=a.length,lt=o.d!==">",op=lt?"<":">",st=[],code=["for I ← 2, N","  X ← ADATOK[I]","  J ← I-1","  VEGE ← hamis","  while NOT VEGE","    if J >= 1","      if ADATOK[J] "+op+" X","        ADATOK[J+1] ← ADATOK[J]","        J ← J-1","      else","        VEGE ← igaz","    else","      VEGE ← igaz","  ADATOK[J+1] ← X"];st.push({l:0,v:{N:n},n:"Kiinduló tömb.",arr:a.slice()});for(var i=2;i<=n;i++){var x=a[i-1],j=i-1;st.push({l:1,v:{I:i,X:x,J:j},n:"X ← ADATOK["+i+"] = "+x+", J ← "+j+".",arr:a.slice(),hl:[i-1]});while(j>=1&&(lt?a[j-1]<x:a[j-1]>x)){var v=a[j-1];a[j]=v;j--;st.push({l:8,v:{I:i,X:x,J:j},n:"ADATOK[J] = "+v+" "+op+" X = "+x+": igaz, eggyel jobbra másoljuk, J ← "+j+".",arr:a.slice(),hl:[j+1]})}a[j]=x;st.push({l:13,v:{I:i,X:x,J:j},n:(j<1?"J < 1, vége a keresésnek. ":"ADATOK["+j+"] = "+a[j-1]+" nem "+op+" "+x+", vége a keresésnek. ")+"ADATOK[J+1] ← X: X a(z) "+(j+1)+". helyre kerül.",arr:a.slice(),hl:[j],end:i})}return{code:code,steps:st,res:a.join(", "),sort:true}}
+function P_flt(o){var s=o.s,p1=o.p1|0,p2=o.p2|0,h=o.h,er="",st=[],a=s.split(""),code=['ER ← ""',"for I ← POZ1, POZ2","  if ST[I] IN H","    ER ← ER + ST[I]","return ER"];st.push({l:0,v:{ER:'""'},n:'ER ← "" (üres sztring).',arr:a});for(var i=p1;i<=p2;i++){if(i<1||i>s.length){st.push({l:1,v:{I:i},n:"ST["+i+"] kívül esik a sztringen: hiba, #.",arr:a});return{code:code,steps:st,res:"#"}}var c=s[i-1],inn=h.indexOf(c)>=0;st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"'},n:'"'+c+'" benne van H-ban? '+(inn?"Igen":"Nem")+".",arr:a,hl:[i-1]});if(inn){er+=c;st.push({l:3,v:{I:i,ER:'"'+er+'"'},n:'ER ← "'+er+'"',arr:a,hl:[i-1]})}}st.push({l:4,v:{ER:'"'+er+'"'},n:"Visszaadott érték.",arr:a});return{code:code,steps:st,res:er}}
+function maxRun(s,lt,st,pre){var er=s[0],op=lt?"<":">",a=s.split("");st.push({l:0,v:{ER:'"'+er+'"'},n:pre+'ER ← ST[1] = "'+er+'"',arr:a,hl:[0]});for(var i=2;i<=s.length;i++){var c=s[i-1],b=lt?c<er:c>er;st.push({l:2,v:{I:i,"ST[I]":'"'+c+'"',ER:'"'+er+'"'},n:pre+'"'+c+'" ('+c.charCodeAt(0)+') '+op+' "'+er+'" ('+er.charCodeAt(0)+')? '+(b?"Igen":"Nem")+".",arr:a,hl:[i-1]});if(b){er=c;st.push({l:3,v:{I:i,ER:'"'+er+'"'},n:pre+'ER ← "'+c+'"',arr:a,hl:[i-1]})}}st.push({l:4,v:{ER:'"'+er+'"'},n:pre+'Visszaadott érték: "'+er+'".'});return er}
+function P_max2(o){var lt=o.d==="<",s=o.s,st=[],code=["ER ← ST[1]","for I ← 2, LENGTH(ST)","  if ST[I] "+(lt?"<":">")+" ER","    ER ← ST[I]","return ER"];if(!s)return{code:[],steps:[],res:"#"};var r1=maxRun(s,lt,st,o.s2?"1. hívás: ":""),res;if(o.s2){var r2=maxRun(o.s2,lt,st,"2. hívás: ");res=r1+r2;st.push({l:-1,v:{ER:'"'+res+'"'},n:'Ki: VALAMI("'+s+'") + VALAMI("'+o.s2+'") = "'+r1+'" + "'+r2+'" = "'+res+'". Sztringeknél a + összefűzést jelent.'})}else{res=r1+s;st.push({l:-1,v:{ER:'"'+res+'"'},n:'TESZT: ER ← VALAMI(ER) + ER. A visszaadott karakter a szó ELÉ kerül: "'+r1+'" + "'+s+'".'})}return{code:code,steps:st,res:res}}
+function P_bub(o){
+  var a=o.a.slice(),n=a.length,st=[],cs;
+  var code=["for I ← 1, N-1","  for J ← N, I+1, -1","    if ADATOK[J] "+(o.d===">"?">":"<")+" ADATOK[J-1]","      CS ← ADATOK[J]","      ADATOK[J] ← ADATOK[J-1]","      ADATOK[J-1] ← CS"];
+  st.push({l:0,v:{N:n},n:"Kiinduló tömb.",arr:a.slice()});
+  for(var i=1;i<n;i++)for(var j=n;j>=i+1;j--){
+    var sw=o.d===">"?a[j-1]>a[j-2]:a[j-1]<a[j-2];
+    if(sw){cs=a[j-1];a[j-1]=a[j-2];a[j-2]=cs}
+    st.push({l:sw?5:2,v:{I:i,J:j},n:"ADATOK["+j+"] = "+(sw?a[j-2]:a[j-1])+" és ADATOK["+(j-1)+"] = "+(sw?a[j-1]:a[j-2])+" (a vizsgálatkor). "+(sw?"A feltétel igaz, ezért felcseréljük.":"A feltétel hamis, nincs csere."),arr:a.slice(),hl:[j-1,j-2],I:i,J:j});
+  }
+  return{code:code,steps:st,res:a.join(", "),bub:true,n:n};
+}
+
+/* ---------- LÉPTETŐ ---------- */
+var CFG={
+ sum:{title:"Összegzés tömbön",intro:'<p>Az összegzés mintája: egy <b>akkumulátor</b> változó (itt ER) nullával indul, és minden ciklusmagban hozzáadjuk a következő elemet. Fontos: a TESZT előbb feltölti a tömböt, és csak utána hívja a VALAMI-t.</p>',inputs:[["k","Feltöltés: A[I] ← I, I = 1-től (NMAX = 5)","number",5],["db","VALAMI DB paramétere","number",3],["step","Ciklus lépése","number",1]],run:P_sum2,ask:"Mit ír ki a TESZT (ER értéke)?"},
+ max:{title:"Legnagyobb vagy legkisebb karakter",intro:'<p>A „legnagyobb” keresése: az első elemmel indulunk, és ha találunk nagyobbat, lecseréljük. A karaktereket a <b>kódjuk</b> (ASCII) alapján hasonlítja össze: a nagybetűk (65–90) kisebbek, mint a kisbetűk (97–122), és a számjegyek (48–57) még kisebbek. Az aláhúzás (95) a nagy- és kisbetűk között van.</p><p>Utána a TESZT az eredményt <b>elé</b> fűzi: <span class="tag">VALAMI(ER) + ER</span>. Ha megadsz második szót, a TESZT két hívás eredményét fűzi össze: <span class="tag">VALAMI(a) + VALAMI(b)</span>.</p>',inputs:[["s","Szó","text","citrom"],["s2","Második szó (két hívás összefűzéséhez, elhagyható)","text",""],["d","Feltétel","sel",">",[[">","ST[I] > ER (legnagyobb karakter)"],["<","ST[I] < ER (legkisebb karakter)"]]]],run:P_max2,ask:"Mit ír ki a TESZT?"},
+ sel:{title:"Kiválasztásos rendezés",intro:'<p>Minden körben (I) megkeressük a hátralévő részben a legnagyobb (vagy legkisebb) elem helyét (K), és ha az nem az I. helyen van, kicseréljük az I. elemmel. Az „I értéke n, és a ciklusmag már lefutott” az n. kör cseréje UTÁNI állapotot jelenti.</p>',inputs:[["a","Tömb (vesszővel)","text","6,2,9,4,7,1,8,3,5"],["d","Feltétel","sel",">",[[">","ADATOK[J] > ADATOK[K] (legnagyobb előre)"],["<","ADATOK[J] < ADATOK[K] (legkisebb előre)"]]]],run:P_sel,sort:true,ask:"Add meg a tömböt (vesszővel) a fent megadott I kör végén:"},
+ ins:{title:"Beszúró rendezés",intro:'<p>Az I. elemet (X) kivesszük, és a már rendezett eleje felé haladva addig tolunk jobbra elemeket, amíg a feltétel igaz. Ezután X a felszabadult helyre kerül. Figyeld meg: a feltétel iránya dönti el, hogy növekvő vagy csökkenő lesz a rendezett rész. Az „I értéke n, és a ciklusmag már lefutott” az X elhelyezése UTÁNI állapot.</p>',inputs:[["a","Tömb (vesszővel)","text","6,2,9,4,7,1,8,3,5"],["d","Feltétel","sel","<",[["<","ADATOK[J] < X (a kisebbek tolódnak jobbra)"],[">","ADATOK[J] > X (a nagyobbak tolódnak jobbra)"]]]],run:P_ins,sort:true,ask:"Add meg a tömböt (vesszővel) a fent megadott I kör végén:"},
+ flt:{title:"Szűrés halmazzal (IN)",intro:'<p>Az <span class="tag">ST[I] IN H</span> azt kérdezi, hogy a karakter eleme-e a H halmaznak. Az eredmény azokból a karakterekből áll, amelyek benne vannak H-ban, az eredeti sorrendben. A kis- és nagybetű különböző karakter. Üres eredménynél a mezőt üresen hagyod.</p>',inputs:[["s","Sztring","text","Programozas_gyakorlat"],["p1","POZ1","number",1],["p2","POZ2","number",8],["h","H halmaz","text","aeiouAEIOU"]],run:P_flt,ask:"Mit ír ki a TESZT?"},
+ idx:{title:"Legkisebb elem indexe",intro:'<p>Fontos különbség: az ER itt <b>index</b> (egész szám), nem karakter. Az ER azt jegyzi meg, hol van az eddigi legkisebb elem, és a <span class="tag">ST[I] &lt; ST[ER]</span> feltétel az ER helyén álló karakterrel hasonlít. Ha két karakter egyenlő, a feltétel hamis, így az ER nem változik, vagyis az első előfordulás marad. A visszaadott érték a pozíció, nem a betű.</p>',inputs:[["s","Szó","text","madarak"],["s2","Második szó (összeadáshoz, elhagyható)","text",""],["d","Feltétel","sel","<",[["<","ST[I] < ST[ER] (legkisebb)"],[">","ST[I] > ST[ER] (legnagyobb)"]]]],run:P_idx2,ask:"Mit ír ki a TESZT? (az eredmény egy szám)"},
+ cp:{title:"Szövegépítés ciklusban",intro:'<p>Az <span class="tag">ER ← ST[I] + valami + ER</span> minta az új karaktert <b>az eddigi ER elé</b> teszi, így megfordítja a sorrendet. (Ha ER mögé fűzöd: <span class="tag">ER + valami + ST[I]</span>, a sorrend megmarad.) A <span class="tag">COPY(s, kezdet, hossz)</span> az s sztring <b>kezdet</b>. karakterétől (1-től számozva!) másol <b>hossz</b> darabot. Ha a pozíciók kilógnak a sztringből, az eredmény hiba (#).</p>',inputs:[["s","Sztring","text","PROGRAM_teszt"],["p1","POZ1","number",3],["p2","POZ2","number",7],["m","Sorrend","sel","pre",[["pre","ER elé: ST[I] + … + ER"],["post","ER mögé: ER + … + ST[I]"]]],["off","Ciklus kezdete: POZ1 + ?","number",1],["step","Ciklus lépése","number",1],["cs","COPY kezdete (a „+-/*#()[]{}” sztringben)","number",2]],run:P_cp2,ask:"Mit ír ki a TESZT? (hiba esetén #)"},
+ bub:{title:"Buborékrendezés állapota",intro:'<p>A belső ciklus <b>hátulról előre</b> halad (J ← N-tól I+1-ig), és a szomszédos párokat cseréli, ha a hátsó kisebb. Minden külső kör (I) végére az I. legkisebb elem a helyére kerül, ezért a tömb eleje fokozatosan rendezetté válik. Az „ez a ciklusmag már lefutott” azt jelenti: a J-hez tartozó összehasonlítás és esetleges csere már megtörtént. Ha a feltétel <b>&gt;</b>, akkor a nagyobb elemek kerülnek előre, vagyis csökkenő rendezés lesz. A feltétel irányát mindig az aktuális kódból olvasd le.</p>',inputs:[["a","Tömb (vesszővel)","text","9,4,7,1,8,3,6,2,5"],["d","Feltétel","sel","<",[["<","ADATOK[J] < ADATOK[J-1] (növekvő)"],[">","ADATOK[J] > ADATOK[J-1] (csökkenő)"]]]],run:P_bub,ask:"Add meg a tömböt (vesszővel) a kiválasztott I, J állapotnál:"}
+};
+var S={};
+
+function stepper(k){
+  var c=CFG[k],vals={};
+  c.inputs.forEach(function(i){vals[i[0]]=i[3]});
+  S={k:k,i:0,vals:vals};
+  $("#view").innerHTML='<div class="card"><h3>'+c.title+'</h3>'+c.intro+
+   '<div class="row" id="ins">'+c.inputs.map(function(i){return '<label>'+i[1]+(i[2]==="sel"?'<select data-k="'+i[0]+'">'+i[4].map(function(x){return '<option value="'+esc(x[0])+'">'+esc(x[1])+'</option>'}).join("")+'</select>':'<input data-k="'+i[0]+'" type="'+i[2]+'" value="'+esc(i[3])+'">')+'</label>'}).join("")+(k==="bub"?'<label>I<input type="number" id="ji" value="2" min="1"></label><label>J<input type="number" id="jj" value="6" min="2"></label>':(CFG[k].sort?'<label>I<input type="number" id="ji" value="3" min="1"></label>':''))+'<button class="btn" id="go">Betöltés</button></div></div>'+
+   '<div class="card"><h3>1. Tippelj</h3><div class="row"><label>'+esc(c.ask)+'<input id="guess" type="text" autocomplete="off"></label><button class="btn alt" id="chk">Ellenőrzés</button><span class="fb" id="gfb"></span></div></div>'+
+   '<div class="card"><h3>2. Lépkedj végig</h3><pre class="code" id="code"></pre><div class="arr" id="arr"></div><div class="vars" id="vars"></div><div class="note" id="note"></div><div class="row"><button class="btn alt" id="prev">◀ Előző</button><button class="btn" id="next">Következő ▶</button><button class="btn alt" id="all">Vége</button><span id="pos" class="chip"></span></div><p class="res" id="fin"></p></div>';
+  $("#go").onclick=load;$("#chk").onclick=check;
+  $("#prev").onclick=function(){S.i=Math.max(0,S.i-1);draw()};
+  $("#next").onclick=function(){S.i=Math.min(S.P.steps.length-1,S.i+1);draw()};
+  $("#all").onclick=function(){S.i=S.P.steps.length-1;draw()};
+  load();
+}
+function load(){
+  var c=CFG[S.k],o={};
+  document.querySelectorAll("#ins [data-k]").forEach(function(e){o[e.dataset.k]=e.value});
+  if(S.k==="bub"||CFG[S.k].sort)o.a=o.a.split(",").map(function(x){return parseInt(x,10)}).filter(function(x){return !isNaN(x)}).slice(0,12);
+  S.P=c.run(o);S.i=0;$("#gfb").textContent="";$("#guess").value="";$("#fin").textContent="";draw();
+}
+function check(){
+  var g=$("#guess").value.trim().replace(/\s+/g,""),r=S.P.res.replace(/\s+/g,"");
+  if(S.P.sort){var I2=+$("#ji").value,e=S.P.steps.filter(function(x){return x.end===I2}).pop();if(!e){$("#gfb").className="fb bad";$("#gfb").textContent="Ehhez az I-hez nincs állapot.";return}r=e.arr.join(",")}else if(S.k==="bub"){
+    var I=+$("#ji").value,J=+$("#jj").value,st=S.P.steps.filter(function(x){return x.I===I&&x.J===J})[0];
+    if(!st){$("#gfb").className="fb bad";$("#gfb").textContent="Ehhez az I, J párhoz nincs állapot (J = N … I+1 között lehet).";return}
+    r=st.arr.join(",");
+  }
+  var ok=g===r;$("#gfb").className="fb "+(ok?"ok":"bad");
+  $("#gfb").textContent=ok?"Helyes!":"Még nem. Lépkedj végig, és keresd meg, hol tér el.";
+}
+function draw(){
+  var P=S.P;if(!P.steps.length){$("#note").textContent="Adj meg adatot.";return}
+  var s=P.steps[S.i];
+  $("#code").innerHTML=P.code.map(function(t,i){return '<div'+(i===s.l?' class="on"':'')+'>'+esc(t)+'</div>'}).join("");
+  $("#arr").innerHTML=s.arr?s.arr.map(function(x,i){return '<div class="cell'+((s.hl||[]).indexOf(i)>=0?' h':'')+'">'+x+'<small>'+(i+1)+'</small></div>'}).join(""):"";
+  $("#vars").innerHTML=Object.keys(s.v).map(function(k){return '<span class="chip"><b>'+esc(k)+'</b> = '+esc(s.v[k])+'</span>'}).join("");
+  $("#note").textContent=s.n;
+  $("#pos").textContent=(S.i+1)+" / "+P.steps.length;$("#pos").style.setProperty("--p",((S.i+1)/P.steps.length*100)+"%");
+  $("#prev").disabled=S.i===0;$("#next").disabled=S.i===P.steps.length-1;
+  $("#fin").textContent=S.i===P.steps.length-1?"Végeredmény: "+P.res:"";
+}
+function show(){if(cur==="th")theory();else stepper(cur)}
+(function(){var rt=renderTabs,first=true,last=cur;renderTabs=function(){rt();var a=document.querySelector('#tabs [aria-selected=true]');if(a&&a.scrollIntoView)a.scrollIntoView({inline:'center',block:'nearest',behavior:first?'auto':'smooth'});if(!first&&last!==cur)window.scrollTo({top:0,behavior:'smooth'});last=cur;first=false};
+new MutationObserver(function(ms){ms.forEach(function(m){var e=m.target.nodeType===3?m.target.parentNode:m.target;if(e&&(e.id==='gfb'||e.id==='note'||e.id==='fin')){e.style.animation='none';void e.offsetWidth;e.style.animation=''}})}).observe(document.body,{subtree:true,childList:true,characterData:true});
+document.addEventListener('keydown',function(e){var t=e.target.tagName;if(t==='INPUT'||t==='SELECT'||t==='TEXTAREA')return;var b=e.key==='ArrowRight'?$('#next'):e.key==='ArrowLeft'?$('#prev'):null;if(b&&!b.disabled){e.preventDefault();b.click()}})})();
+(function(){var b=document.createElement('button'),m=document.querySelector('main'),dark=matchMedia('(prefers-color-scheme:dark)').matches;b.className='tt';b.setAttribute('aria-label','Téma váltása');m.insertBefore(b,m.firstChild);function set(d){dark=d;document.documentElement.dataset.theme=d?'dark':'light';b.textContent=d?'☀️':'🌙'}set(dark);b.onclick=function(){set(!dark)}})();
+renderTabs();show();
+</script>
+</body>
+</html>
